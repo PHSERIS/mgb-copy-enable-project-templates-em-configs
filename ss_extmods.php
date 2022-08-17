@@ -8,26 +8,12 @@ class ss_extmods extends \ExternalModules\AbstractExternalModule
 {
     function redcap_every_page_top($project_id)
     {
-//        print "<pre>";
         $ext_mod_page_parts = explode("/",PAGE);
         $ext_mod_page_w_pid = $ext_mod_page_parts[2] . "/" . $ext_mod_page_parts[3] . "/" . $ext_mod_page_parts[4];
         $ext_mod_page = explode("?",$ext_mod_page_w_pid);
 
         global $Proj;
 
-        if($ext_mod_page[0] == "ExternalModules/manager/project.php") {
-            // Hide Self Service module from external module screen
-            $script = <<<SCRIPT
-<script type="text/javascript">
-
-$( document ).ready(function() {
-        $('#external-modules-enabled tbody tr[data-module="self_service_ext_mod"]').remove();
-    });
-            </script>
-SCRIPT;
-            print $script;
-            //
-        }
         if(PAGE == "ProjectSetup/index.php"){
             // Check if auto enable has already been done
             $enable_once_flag = EM::getProjectSetting('self_service_ext_mod', $Proj->project["project_id"], 'enable_once');
@@ -48,28 +34,52 @@ SCRIPT;
                 if(sizeof($mod_on_template) >= 1){
 
                         // Auto enable template's modules and their settings
+                        // Use parametrized queries from the EM framework
 
-                        $sql = "SELECT * FROM redcap_external_module_settings WHERE project_id= {$Proj->project["template_id"]}";
-                        $q = db_query($sql);
-                        while ($row = db_fetch_assoc($q)) {
-//                            var_dump($row);
-                            $em_id = $row['external_module_id'];
-                            $key = $row['key'];
-                            $type = $row['type'];
-                            $value = db_real_escape_string($row['value']);
-                            $insert_sql = "INSERT INTO redcap_external_module_settings ( external_module_id, project_id, `key`, type, value) VALUES ($em_id, {$Proj->project["project_id"]}, '$key', '$type', '$value' )";
-//                            print $insert_sql;
-                            $result = db_query($insert_sql);
-//                            var_dump($result);
-                        }
+                    $query = $this->createQuery();
+                    $sql= 'select * from redcap_external_module_settings where project_id = ?';
+                    $params = $Proj->project["template_id"];
+
+                    $query->add($sql, [$params]);
+                    $result = $query->execute();
+
+                    while($row = $result->fetch_assoc()){
+
+                        $em_id = $row['external_module_id'];
+                        $key = $row['key'];
+                        $type = $row['type'];
+                        $value = $row['value'];
+                        $insertParams = [$em_id, $Proj->project["project_id"], $key, $type, $value];
+                        // ----------------------------
+                        $insertQuery = $this->createQuery();
+                        $insertQuery->add('
+						INSERT INTO redcap_external_module_settings
+							(
+								`external_module_id`,
+								`project_id`,
+								`key`,
+								`type`,
+								`value`
+							)
+						VALUES
+							(
+								?,
+								?,
+								?,
+								?,
+								?
+							)
+					', $insertParams);
+
+                        $insertResult = $insertQuery->execute();
+                    }
                 }
                 // set flag that auto enable already too place
                 EM::setProjectSetting('self_service_ext_mod', $Proj->project["project_id"], 'enable_once', 1);
             } else {
-//                print "enabling condition not met";
+                    // print "enabling condition not met";
             }
         }
-//        print "</pre>";
     }
 
     function redcap_user_rights()

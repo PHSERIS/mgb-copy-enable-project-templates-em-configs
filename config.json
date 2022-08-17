@@ -1,13 +1,15 @@
 {
-	"name": "Self Service Ext-Mods w/ Custom Defaults",
+	"name": "MGB Copy/Enable Project Template's EM Configs",
 
 	"namespace": "PHSMGB\\ss_extmods",
+
+	"framework-version": 8,
 
 	"authors": [
 		{
 			"name": "Eduardo Morales",
 			"email": "EMORALES@BWH.HARVARD.EDU",
-			"institution": "PHS - Harvard Catalyst"
+			"institution": "MGB"
 		}
 	],
 
@@ -16,6 +18,6 @@
 		"redcap_user_rights"
 	],
 
-	"description": "Self service for auto-enabling External Modules from a project template along with the module configuration setting values."
+	"description": "Create projects, from project templates, that include the project template's EM configs."
 
 }
