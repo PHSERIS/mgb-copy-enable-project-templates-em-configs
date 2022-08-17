@@ -1,0 +1,21 @@
+{
+	"name": "Self Service Ext-Mods w/ Custom Defaults",
+
+	"namespace": "PHSMGB\\ss_extmods",
+
+	"authors": [
+		{
+			"name": "Eduardo Morales",
+			"email": "EMORALES@BWH.HARVARD.EDU",
+			"institution": "PHS - Harvard Catalyst"
+		}
+	],
+
+	"permissions": [
+		"redcap_every_page_top",
+		"redcap_user_rights"
+	],
+
+	"description": "Self service for auto-enabling External Modules from a project template along with the module configuration setting values."
+
+}
